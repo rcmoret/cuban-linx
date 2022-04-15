@@ -82,9 +82,9 @@ RSpec.describe CubanLinx::CallChain do
         business_id = payload.delete(:business_id)
         business_class.find_by(id: business_id).then do |potential_business|
           if potential_business.nil?
-            [:error, { business_lookup: "Could not find business w/ id: #{business_id}" }]
+            [:error, { lookup: "Did not find business w/ id: #{business_id}" }]
           else
-            [:ok, { business: potential_business, warnings: "nothing to see here" }]
+            [:ok, { business: potential_business, warnings: "nothing to see" }]
           end
         end
       end
@@ -92,11 +92,16 @@ RSpec.describe CubanLinx::CallChain do
       define_link :format_business do |payload|
         return :ok if payload.warnings.none?
 
+        business_hash = payload
+                        .fetch(:business)
+                        .attributes
+                        .slice("id", "name", "industry")
+
         [
           :ok,
           {
             warnings: "dropped attributes",
-            business: payload.fetch(:business).attributes.slice("id", "name", "industry"),
+            business: business_hash,
           },
         ]
       end

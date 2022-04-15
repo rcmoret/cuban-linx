@@ -1,11 +1,14 @@
 module CubanLinx
   class Chain
     def initialize(functions, context:)
-      @function_chain = functions.map { |function| chainable_method(context, function) }
+      @function_chain = functions.map do |function|
+        chainable_method(context, function)
+      end
     end
 
     def call(**initial_args, &block)
-      function_chain.reduce(Payload.new(:ok, initial_args), &reducer).as_result.then do |result|
+      function_chain.reduce(Payload.new(:ok, initial_args),
+                            &reducer).as_result.then do |result|
         block_given? ? block.call(result) : result
       end
     end

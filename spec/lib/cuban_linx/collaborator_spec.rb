@@ -3,7 +3,8 @@ RSpec.describe CubanLinx::Collaborator do
     context "when the payload status is :error" do
       it "returns the payload" do
         instance = described_class.new(context_instance, ->(*) { :ok })
-        payload = payload_double(:error, messages: { keys: "24 a brick" }, errors: { user: :not_found })
+        payload = payload_double(:error, messages: { keys: "24 a brick" },
+                                         errors: { user: :not_found },)
         expect(instance.call(payload)).to eq payload
       end
     end
@@ -17,11 +18,14 @@ RSpec.describe CubanLinx::Collaborator do
     end
 
     context "when the payload status is :ok" do
-      it "calls instance exec on the context instance with the payload and the function" do
+      it "calls instance exec on context instance w/ payload & the fn" do
         ok_function = ->(*) { :ok }
         instance = described_class.new(context_instance, ok_function)
         payload = payload_double
-        expect(context_instance).to receive(:instance_exec).with(payload, &ok_function)
+        expect(context_instance)
+          .to receive(:instance_exec)
+          .with(payload, &ok_function)
+
         instance.call(payload)
       end
 
@@ -39,7 +43,9 @@ RSpec.describe CubanLinx::Collaborator do
           it "raises a pattern matching error" do
             instance = described_class.new(context_instance, ->(*) { true })
 
-            expect { instance.call(payload_double) }.to raise_error(NoMatchingPatternError)
+            expect do
+              instance.call(payload_double)
+            end.to raise_error(NoMatchingPatternError)
           end
         end
 
@@ -47,31 +53,39 @@ RSpec.describe CubanLinx::Collaborator do
           it "raises a pattern matching error" do
             instance = described_class.new(context_instance, ->(*) { false })
 
-            expect { instance.call(payload_double) }.to raise_error(NoMatchingPatternError)
+            expect do
+              instance.call(payload_double)
+            end.to raise_error(NoMatchingPatternError)
           end
         end
 
         context "when returning an integer" do
           it "raises a pattern matching error" do
-            instance = described_class.new(context_instance, ->(*) { (-100..100).to_a.sample })
+            rand_fn = ->(*) { (-100..100).to_a.sample }
+            instance = described_class.new(context_instance, rand_fn)
 
-            expect { instance.call(payload_double) }.to raise_error(NoMatchingPatternError)
+            expect { instance.call(payload_double) }
+              .to raise_error(NoMatchingPatternError)
           end
         end
 
         context "when retuning a string" do
           it "raises a pattern matching error" do
-            instance = described_class.new(context_instance, ->(*) { "i don't think this will work" })
+            fn = ->(*) { "i don't think this will work" }
+            instance = described_class.new(context_instance, fn)
 
-            expect { instance.call(payload_double) }.to raise_error(NoMatchingPatternError)
+            expect { instance.call(payload_double) }
+              .to raise_error(NoMatchingPatternError)
           end
         end
 
         context "when returning a non-supported status in the tuple" do
           it "raises a pattern matching error" do
-            instance = described_class.new(context_instance, ->(*) { [:non_matching_status, {}, {}] })
+            fn = ->(*) { [:non_matching_status, {}, {}] }
+            instance = described_class.new(context_instance, fn)
 
-            expect { instance.call(payload_double) }.to raise_error(NoMatchingPatternError)
+            expect { instance.call(payload_double) }
+              .to raise_error(NoMatchingPatternError)
           end
         end
       end
@@ -81,7 +95,9 @@ RSpec.describe CubanLinx::Collaborator do
           it "returns a new instance of a payload" do
             instance = described_class.new(context_instance, fn)
             payload = payload_double(messages: initial_message)
-            expect(instance.call(payload)).to match_payload(:ok, expected_messages, expected_errors)
+
+            expect(instance.call(payload))
+              .to match_payload(:ok, expected_messages, expected_errors)
           end
         end
 
@@ -89,7 +105,9 @@ RSpec.describe CubanLinx::Collaborator do
           it "returns a new instance of a payload including the messages" do
             instance = described_class.new(context_instance, fn)
             payload = payload_double(messages: initial_message)
-            expect(instance.call(payload)).to match_payload(:ok, expected_messages, expected_errors)
+
+            expect(instance.call(payload))
+              .to match_payload(:ok, expected_messages, expected_errors)
           end
         end
 
@@ -97,25 +115,35 @@ RSpec.describe CubanLinx::Collaborator do
           it "returns a new instance of a payload including the errors" do
             instance = described_class.new(context_instance, fn)
             payload = payload_double(messages: initial_message)
-            expect(instance.call(payload)).to match_payload(:ok, expected_messages, expected_errors)
+
+            expect(instance.call(payload))
+              .to match_payload(:ok, expected_messages, expected_errors)
           end
         end
 
         context "when the payload has messages and errors" do
-          it "returns a new instance of a payload including the messages and errors" do
+          it "returns instance of payload including the messages & errors" do
             instance = described_class.new(context_instance, fn)
             payload = payload_double(messages: initial_message, errors: errors)
-            expect(instance.call(payload)).to match_payload(:ok, expected_messages, errors.merge(expected_errors))
+
+            expect(instance.call(payload))
+              .to match_payload(
+                :ok,
+                expected_messages,
+                errors.merge(expected_errors),
+              )
           end
         end
       end
 
       shared_examples "returning an :error payload" do
         context "when the payload has messages" do
-          it "returns a new instance of a payload including the expected_messages" do
+          it "returns an instance of payload including the expected_messages" do
             instance = described_class.new(context_instance, fn)
             payload = payload_double(messages: initial_message)
-            expect(instance.call(payload)).to match_payload(:error, expected_messages, errors)
+
+            expect(instance.call(payload))
+              .to match_payload(:error, expected_messages, errors)
           end
         end
 
@@ -123,15 +151,22 @@ RSpec.describe CubanLinx::Collaborator do
           it "returns a new instance of a payload including the errors" do
             instance = described_class.new(context_instance, fn)
             payload = payload_double(errors: errors, messages: initial_message)
-            expect(instance.call(payload)).to match_payload(:error, expected_messages, errors)
+
+            expect(instance.call(payload))
+              .to match_payload(:error, expected_messages, errors)
           end
         end
 
         context "when the payload has expected_messages and errors" do
-          it "returns a new instance of a payload including the expected_messages and errors" do
+          it "returns a new payload including the expected messages & errors" do
             instance = described_class.new(context_instance, fn)
-            payload = payload_double(messages: expected_messages, errors: errors)
-            expect(instance.call(payload)).to match_payload(:error, expected_messages, errors)
+            payload = payload_double(
+              messages: expected_messages,
+              errors: errors,
+            )
+
+            expect(instance.call(payload))
+              .to match_payload(:error, expected_messages, errors)
           end
         end
       end
@@ -166,9 +201,13 @@ RSpec.describe CubanLinx::Collaborator do
         include_examples "returning an :ok payload"
       end
 
-      context "when the call to instance_exec returns [:ok, messages, errors]" do
-        let(:fn) { ->(*) { [:ok, { keys: "24 a brick" }, { from: "staircase to stage" }] } }
-        let(:initial_message) { {  world: :is_yours } }
+      context "when call to instance_exec returns [:ok, messages, errors]" do
+        let(:fn) do
+          lambda { |*|
+            [:ok, { keys: "24 a brick" }, { from: "staircase to stage" }]
+          }
+        end
+        let(:initial_message) { { world: :is_yours } }
         let(:expected_messages) { initial_message.merge(fn.call[1]) }
         let(:expected_errors) { fn.call.last }
         let(:errors) { fn.call.last }
@@ -185,8 +224,13 @@ RSpec.describe CubanLinx::Collaborator do
         include_examples "returning an :error payload"
       end
 
-      context "when the call to instance_exec returns [:error, messages, errors]" do
-        let(:fn) { ->(*) { [:error, { msg: "pardon my french" }, { but: "let me speak Italian" }] } }
+      context "when call to instance_exec returns [:error, messages, errors]" do
+        let(:fn) do
+          lambda { |*|
+            [:error, { msg: "pardon my french" },
+             { but: "let me speak Italian" },]
+          }
+        end
         let(:initial_message) { { world: :is_yours } }
         let(:expected_messages) { initial_message.merge(fn.call[1]) }
         let(:errors) { fn.call.last }
@@ -198,22 +242,31 @@ RSpec.describe CubanLinx::Collaborator do
         context "when there no exisiting errors" do
           it "returns a new instance of a payload including the messages" do
             instance = described_class.new(context_instance, fn)
-            payload = payload_double(messages: initial_message, errors: initial_error)
-            expect(instance.call(payload)).to match_payload(:no_op, expected_messages, expected_errors)
+            payload = payload_double(messages: initial_message,
+                                     errors: initial_error,)
+            expect(instance.call(payload))
+              .to match_payload(:no_op, expected_messages, expected_errors)
           end
         end
 
         context "when there are exisiting errors" do
           it "returns a new instance of a payload including the messages" do
             instance = described_class.new(context_instance, fn)
-            payload = payload_double(messages: initial_message, errors: initial_error)
-            expect(instance.call(payload)).to match_payload(:no_op, expected_messages, expected_errors)
+            payload = payload_double(messages: initial_message,
+                                     errors: initial_error,)
+            expect(instance.call(payload))
+              .to match_payload(:no_op, expected_messages, expected_errors)
           end
         end
       end
 
-      context "when the call to instance_exec returns [:no_op, messages, errors]" do
-        let(:fn) { ->(*) { [:no_op, { msg: "pardon my french" }, { but: "let me speak Italian" }] } }
+      context "when call to instance_exec returns [:no_op, messages, errors]" do
+        let(:fn) do
+          lambda { |*|
+            [:no_op, { msg: "pardon my french" },
+             { but: "let me speak Italian" },]
+          }
+        end
         let(:initial_message) { { world: :is_yours } }
         let(:expected_messages) { fn.call[1].merge(initial_message) }
         let(:initial_error) { { chef: "shine like marble, rembarkable" } }

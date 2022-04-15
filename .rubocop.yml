@@ -12,6 +12,7 @@ Metrics/BlockLength:
     - context
     - define
     - define_function
+    - define_link
     - describe
     - group
     - included

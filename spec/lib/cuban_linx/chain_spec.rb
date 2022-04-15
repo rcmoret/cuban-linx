@@ -12,7 +12,8 @@ RSpec.describe CubanLinx::Chain do
       it "creates a collaborator" do
         add_function = ->(payload) { payload.total + rand(1000) }
         context_instance = context_class.new
-        expect(CubanLinx::Collaborator).to receive(:new).with(context_instance, add_function)
+        expect(CubanLinx::Collaborator)
+          .to receive(:new).with(context_instance, add_function)
 
         described_class.new([add_function], context: context_instance)
       end
@@ -45,20 +46,49 @@ RSpec.describe CubanLinx::Chain do
     it "returns the result of the last function" do
       context_instance = context_class.new
       ok_fn = ->(payload) { [:ok, { string: payload.delete(:String) }] }
-      string_fn = ->(payload) { [:ok, { string: payload.fetch(:string).upcase }] }
+      string_fn = lambda { |payload|
+        [:ok, { string: payload.fetch(:string).upcase }]
+      }
       sample_copy = "we're not supposed to trust anyone in our profession"
-      subject = described_class.new([ok_fn, string_fn], context: context_instance).call(String: sample_copy)
-      expect(subject).to match [:ok, { messages: hash_including(string: sample_copy.upcase), errors: {} }]
+      subject = described_class.new(
+        [ok_fn, string_fn],
+        context: context_instance,
+      ).call(String: sample_copy)
+
+      expect(subject)
+        .to match(
+          [
+            :ok,
+            {
+              messages: hash_including(string: sample_copy.upcase),
+              errors: {},
+            },
+          ],
+        )
     end
 
     it "yields the result of the last function if a block is given" do
       context_instance = context_class.new
       ok_fn = ->(payload) { [:ok, { string: payload.delete(:String) }] }
-      string_fn = ->(payload) { [:ok, { string: payload.fetch(:string).upcase }] }
+      string_fn = lambda { |payload|
+        [:ok, { string: payload.fetch(:string).upcase }]
+      }
       sample_copy = "we're not supposed to trust anyone in our profession"
-      subject = described_class.new([ok_fn, string_fn], context: context_instance)
+      subject = described_class.new(
+        [ok_fn, string_fn],
+        context: context_instance,
+      )
       subject.call(String: sample_copy) do |result|
-        expect(result).to match [:ok, { messages: hash_including(string: sample_copy.upcase), errors: {} }]
+        expect(result)
+          .to match(
+            [
+              :ok,
+              {
+                messages: hash_including(string: sample_copy.upcase),
+                errors: {},
+              },
+            ],
+          )
       end
     end
   end
