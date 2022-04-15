@@ -1,0 +1,45 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.0.0
+
+Layout/LineLength:
+  Max: 80
+
+Metrics/BlockLength:
+  Max: 10
+  IgnoredMethods:
+    - before
+    - context
+    - define
+    - define_function
+    - describe
+    - group
+    - included
+    - it
+    - let
+    - namespace
+    - shared_context
+    - shared_examples
+    - shared_examples_for
+    - task
+
+Style/Documentation:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/MultilineBlockChain:
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma

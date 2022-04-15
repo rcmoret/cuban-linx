@@ -1,3 +1,4 @@
+require "faker"
 require_relative "../lib/cuban_linx"
 
 require_relative "./support/custom_matchers"

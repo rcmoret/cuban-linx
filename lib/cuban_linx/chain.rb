@@ -6,7 +6,7 @@ module CubanLinx
 
     def call(**initial_args, &block)
       function_chain.reduce(Payload.new(:ok, initial_args), &reducer).as_result.then do |result|
-        block_given? ?  block.call(result) : result
+        block_given? ? block.call(result) : result
       end
     end
 

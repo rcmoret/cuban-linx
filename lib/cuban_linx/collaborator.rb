@@ -20,6 +20,7 @@ module CubanLinx
 
     private
 
+    # rubocop:disable Metrics/MethodLength
     def handle(payload, result)
       case result
       in :ok | nil
@@ -38,5 +39,6 @@ module CubanLinx
         [:error, payload.messages, payload.add_errors(errors)]
       end
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end

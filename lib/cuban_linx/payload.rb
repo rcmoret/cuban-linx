@@ -2,10 +2,13 @@ require "set"
 
 module CubanLinx
   class Payload
+    InvalidStatusError = Class.new(StandardError)
+    VALID_STATUSES = %i[ok no_op error].freeze
+
     def initialize(status, messages = {}, errors = {})
-      @status = status
-      @messages = MessageHash.new(messages, initial_keys: :warnings)
-      @errors = hash_with_sets.merge(errors)
+      @status = determine_and_validate(status)
+      @messages = messages.merge({ warnings: Set.new }, &merge_block)
+      @errors = errors
     end
 
     def fetch(*args, &block)
@@ -25,11 +28,15 @@ module CubanLinx
     end
 
     def add(new_messages)
-      messages.merge(new_messages)
+      messages.merge(new_messages, &merge_block)
     end
 
     def add_errors(error_messages)
-      errors.merge(error_messages)
+      errors.merge(error_messages, &merge_block)
+    end
+
+    def add_warning(message)
+      add(warnings: message)
     end
 
     def warnings
@@ -42,34 +49,39 @@ module CubanLinx
       messages.delete(key)
     end
 
+    def method_missing(method_name, *, &block)
+      super unless respond_to_missing?(method_name)
+
+      messages.fetch(method_name)
+    end
+
+    def respond_to_missing?(method_name, include_private = false)
+      messages.key?(method_name) || super
+    end
+
     attr_reader :status, :messages, :errors
 
     private
 
-    def hash_with_sets
-      Hash.new { |hash, key| hash[key] = Set.new }
+    def determine_and_validate(status)
+      return status.to_sym if VALID_STATUSES.include?(status.to_sym)
+
+      raise InvalidStatusError,
+            "Received #{status.inspect}. "\
+            "Should be one of: #{VALID_STATUSES.inspect}"
     end
 
-    class MessageHash < Hash
-      def initialize(messages, initial_keys: [])
-        super() { |hash, key| hash[key] = Set.new }
-          .merge!(messages)
-          .tap { |hash| Array(initial_keys).each { |key| hash[key] } }
-      end
-
-      def merge(other_hash)
-        super(other_hash) do |_key, val1, val2|
-          case [val1, val2]
-          in [Set => set1, Array => collection]
-            set1 + collection
-          in [Set => set1, val]
-            set1 << val
-          else
-            val2
-          end
+    def merge_block
+      lambda { |_key, val1, val2|
+        case [val1, val2]
+        in [Set => set1, Array => collection]
+          set1 + collection
+        in [Set => set1, val]
+          set1 << val
+        else
+          val2
         end
-      end
+      }
     end
-    private_constant :MessageHash
   end
 end

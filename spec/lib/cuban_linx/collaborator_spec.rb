@@ -140,7 +140,7 @@ RSpec.describe CubanLinx::Collaborator do
         let(:initial_message) { {} }
         let(:expected_messages) { {} }
         let(:errors) { { from: "staircase to stage" } }
-        let(:fn) { ->(*) { nil } }
+        let(:fn) { ->(*) {} }
         let(:expected_errors) { {} }
 
         include_examples "returning an :ok payload"
@@ -158,9 +158,9 @@ RSpec.describe CubanLinx::Collaborator do
 
       context "when the call to instance_exec returns [:ok, messages]" do
         let(:errors) { { from: "staircase to stage" } }
-        let(:fn) { ->(*) { [:ok, { keys: "24 a brick" } ] } }
+        let(:fn) { ->(*) { [:ok, { keys: "24 a brick" }] } }
         let(:initial_message) { { the_world: :is_yours } }
-        let(:expected_messages) { initial_message.merge(fn.call.last)  }
+        let(:expected_messages) { initial_message.merge(fn.call.last) }
         let(:expected_errors) { {} }
 
         include_examples "returning an :ok payload"
@@ -169,27 +169,27 @@ RSpec.describe CubanLinx::Collaborator do
       context "when the call to instance_exec returns [:ok, messages, errors]" do
         let(:fn) { ->(*) { [:ok, { keys: "24 a brick" }, { from: "staircase to stage" }] } }
         let(:initial_message) { {  world: :is_yours } }
-        let(:expected_messages) { initial_message.merge(fn.call[1])  }
+        let(:expected_messages) { initial_message.merge(fn.call[1]) }
         let(:expected_errors) { fn.call.last }
-        let(:errors) { fn.call.last  }
+        let(:errors) { fn.call.last }
 
         include_examples "returning an :ok payload"
       end
 
       context "when the call to instance_exec returns [:error, errors]" do
-        let(:fn) { ->(*) { [:error, { msg: "pardon my french" } ] } }
+        let(:fn) { ->(*) { [:error, { msg: "pardon my french" }] } }
         let(:initial_message) { { world: :is_yours } }
         let(:expected_messages) { initial_message  }
-        let(:errors) { fn.call.last  }
+        let(:errors) { fn.call.last }
 
         include_examples "returning an :error payload"
       end
 
       context "when the call to instance_exec returns [:error, messages, errors]" do
-        let(:fn) { ->(*) { [:error, { msg: "pardon my french" }, { but: "let me speak Italian" } ] } }
+        let(:fn) { ->(*) { [:error, { msg: "pardon my french" }, { but: "let me speak Italian" }] } }
         let(:initial_message) { { world: :is_yours } }
-        let(:expected_messages) { initial_message.merge(fn.call[1])  }
-        let(:errors) { fn.call.last  }
+        let(:expected_messages) { initial_message.merge(fn.call[1]) }
+        let(:errors) { fn.call.last }
 
         include_examples "returning an :error payload"
       end
@@ -213,7 +213,7 @@ RSpec.describe CubanLinx::Collaborator do
       end
 
       context "when the call to instance_exec returns [:no_op, messages, errors]" do
-        let(:fn) { ->(*) { [:no_op, { msg: "pardon my french" }, { but: "let me speak Italian" } ] } }
+        let(:fn) { ->(*) { [:no_op, { msg: "pardon my french" }, { but: "let me speak Italian" }] } }
         let(:initial_message) { { world: :is_yours } }
         let(:expected_messages) { fn.call[1].merge(initial_message) }
         let(:initial_error) { { chef: "shine like marble, rembarkable" } }
