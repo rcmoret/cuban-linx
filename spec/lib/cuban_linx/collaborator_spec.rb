@@ -41,7 +41,7 @@ RSpec.describe CubanLinx::Collaborator do
       context "when the payload returns a non-tuple" do
         context "when returning true" do
           it "raises a pattern matching error" do
-            instance = described_class.new(context_instance, ->(*) { true })
+            instance = described_class.new(context_instance, ->(*) { "true" })
 
             expect do
               instance.call(payload_double)
@@ -185,6 +185,16 @@ RSpec.describe CubanLinx::Collaborator do
         let(:initial_message) { { hello: :friend } }
         let(:errors) { { from: "staircase to stage" } }
         let(:fn) { ->(*) { :ok } }
+        let(:expected_messages) { initial_message }
+        let(:expected_errors) { {} }
+
+        include_examples "returning an :ok payload"
+      end
+
+      context "when the call to instance_exec returns true" do
+        let(:initial_message) { { hello: :friend } }
+        let(:errors) { { from: "staircase to stage" } }
+        let(:fn) { ->(*) { true } }
         let(:expected_messages) { initial_message }
         let(:expected_errors) { {} }
 

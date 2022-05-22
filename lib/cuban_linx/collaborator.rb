@@ -23,7 +23,7 @@ module CubanLinx
     # rubocop:disable Metrics/MethodLength
     def handle(payload, result)
       case result
-      in :ok | nil
+      in :ok | true | nil
         payload.tuple
       in [:ok, messages]
         [:ok, payload.add(messages), payload.errors]
