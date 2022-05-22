@@ -163,7 +163,15 @@ RSpec.describe CubanLinx::CallChain do
 
     it "calls through the chain" do
       instance.user_lookup_chain.call(user_id: 42).then do |result|
-        expect(result).to match_tuple(:ok, { user: { "id" => 42 } })
+        expect(result).to match(
+          [
+            :ok,
+            hash_including(
+              messages: hash_including(user: hash_including("id" => 42)),
+              errors: {},
+            ),
+          ]
+        )
       end
     end
   end

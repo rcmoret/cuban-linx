@@ -8,7 +8,7 @@ RSpec::Matchers.define :match_payload do |status, messages = {}, errors = {}|
     return true if messages.empty? && errors.empty?
 
     payload.messages == DEFAULT_MESSAGES.merge(messages) &&
-      payload.errors.empty?
+      payload.errors == errors
   end
 end
 

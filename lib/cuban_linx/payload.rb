@@ -71,11 +71,14 @@ module CubanLinx
             "Should be one of: #{VALID_STATUSES.inspect}"
     end
 
+    # rubocop:disable Metrics/MethodLength
     def merge_block
       lambda { |_key, val1, val2|
         case [val1, val2]
         in [Set => set1, Array => collection]
           set1 + collection
+        in [Set => set1, Set => set2]
+          set1 + set2
         in [Set => set1, val]
           set1 << val
         else
@@ -83,5 +86,6 @@ module CubanLinx
         end
       }
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end

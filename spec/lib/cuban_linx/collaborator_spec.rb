@@ -252,8 +252,10 @@ RSpec.describe CubanLinx::Collaborator do
         context "when there no exisiting errors" do
           it "returns a new instance of a payload including the messages" do
             instance = described_class.new(context_instance, fn)
-            payload = payload_double(messages: initial_message,
-                                     errors: initial_error,)
+            payload = payload_double(
+              messages: initial_message,
+              errors: initial_error,
+            )
             expect(instance.call(payload))
               .to match_payload(:no_op, expected_messages, expected_errors)
           end
