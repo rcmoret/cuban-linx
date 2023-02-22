@@ -32,15 +32,30 @@ RSpec.describe CubanLinx::Chain do
   end
 
   describe "#call" do
-    it "instantiates a payload with :ok and the key/word arguments" do
-      allow(CubanLinx::Payload).to receive(:new).and_call_original
-      messages = { keys: "24 a brick" }
-      context_instance = context_class.new
-      ok_fn = ->(*) { :ok }
-      expect(CubanLinx::Payload)
-        .to receive(:new)
-        .with(:ok, messages)
-      described_class.new([ok_fn], context: context_instance).call(**messages)
+    context "when initial status is not specified" do
+      it "instantiates a payload with :ok and the key/word arguments" do
+        allow(CubanLinx::Payload).to receive(:new).and_call_original
+        messages = { keys: "24 a brick" }
+        context_instance = context_class.new
+        ok_fn = ->(*) { :ok }
+        expect(CubanLinx::Payload)
+          .to receive(:new)
+          .with(:ok, messages)
+        described_class.new([ok_fn], context: context_instance).call(**messages)
+      end
+    end
+
+    context "when initial status is :error" do
+      it "instantiates a payload with :error and the key/word arguments" do
+        allow(CubanLinx::Payload).to receive(:new).and_call_original
+        args = [:error, { keys: "24 a brick" }]
+        context_instance = context_class.new
+        ok_fn = ->(*) { :ok }
+        expect(CubanLinx::Payload)
+          .to receive(:new)
+          .with(*args)
+        described_class.new([ok_fn], context: context_instance).call(*args)
+      end
     end
 
     it "returns the result of the last function" do
