@@ -13,6 +13,6 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 3.0.0"
   spec.add_development_dependency "faker", "2.20.0"
   spec.add_development_dependency "rspec", "3.11.0"
-  spec.add_development_dependency "rubcop", "1.27"
+  spec.add_development_dependency "rubocop", "1.27"
   spec.metadata["rubygems_mfa_required"] = "true"
 end
